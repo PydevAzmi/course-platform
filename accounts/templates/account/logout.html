@@ -1,0 +1,21 @@
+{% extends "auth_base.html" %}
+{% load crispy_forms_tags %}
+{% block title %}
+  Logout
+{% endblock title %}
+
+{% block main %}
+<div class="card">
+    <div class="card-header text-center">
+        <h3>Logout</h3>
+    </div>
+    <form method="post" enctype="multipart/form-data">
+        <div class="card-body">
+            {% csrf_token %}
+        </div>
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">logout</button>
+        </div>
+    </form>
+</div>
+{% endblock main %}
