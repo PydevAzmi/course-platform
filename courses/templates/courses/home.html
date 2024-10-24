@@ -1,0 +1,147 @@
+{% extends 'auth_base.html' %}
+{% load static %}
+
+{% block title %}
+  Home
+{% endblock title %}
+
+{% block body %}
+    <div class="container m-5">
+        <!-- banner section start -->
+        <section class="banner-section section-padding align-items-center">
+            <div class="container md ">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <div class="banner-txt">
+                            <h2 class="mb-3">An investment in knowledge pays the best interest.</h2>
+                            <h1 class="mb-3">Best online platform for learning.</h1>
+                            <p class="mb-4">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Reiciendis adipisci quo earum ipsum rat</p>
+                            <a href="#" class="btn btn-outline-primary">Start Learning</a>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="banner-img">
+                            <div class="circular-img">
+                            <div class="circular-img-inner">
+                                <div class="circular-img-circle">
+                                    <img src="{% static 'img/banner-img.png' %}" alt="banner img">
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+  
+    <!-- banner section end   -->
+    <div class="bg-light container p-5 ">
+        
+        <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="section-title text-center">
+                        <h2 class="title">Features</h2>
+                        <p class="sub-title">find the right features for you</p>
+                    </div>
+                </div>
+            </div> 
+        </div>
+        <!-- Features Section -->
+        <section class="py-5 mb5">
+            <div class="container m-5">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h4>Create Courses</h4>
+                        <p>Design interactive and engaging courses with our easy-to-use course builder.</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h4>Build Exams</h4>
+                        <p>Create customizable exams to assess learner knowledge and skills.</p>
+                    </div>
+                    <div class="col-md-4">
+                        
+                        <h4>Track Progress</h4>
+                        <p>Monitor learner performance and progress through detailed reports.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- courses section start  -->
+    <section class="py-5 section-padding" bg-info>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="section-title text-center">
+                        <h2 class="title">courses</h2>
+                        <p class="sub-title">find the right course for you</p>
+                    </div>
+                </div>
+            </div> 
+            <div class="row">
+                <div class="row row-cols-1 row-cols-md-3 g-4">
+                    
+                    {% for course in courses  %}
+                                                
+                    <div class="col">
+                        <div class="card h-100">
+                            <a href="{{course.get_absolute_url}}" >
+                          <img  src="{{course.image.url}}" width=150 height=150 class="card-img-top" alt="{{course.title}}"></a>
+                          <div class="card-body">
+                            <h5 class="card-title">{{course.title}}</h5>
+                          </div>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center mt-3  ">
+                    <a href="{% url 'courses' %}" class="btn btn-outline-primary"> view all courses</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- courses section end  -->
+
+    <!-- Testimonials Section -->
+    <section class="bg-light py-5 section-padding">
+        <div class="container">
+            <div class="row justify-content-center ">
+                <div class="col-md-6">
+                    <div class="section-title text-center">
+                        <h2 class="title">Instructors feedback</h2>
+                        <p class="sub-title">what our Instructors say about us</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <blockquote class="blockquote text-center">
+                        <p>"This platform made it so easy to create courses and exams. My students love it!"</p>
+                        <footer class="blockquote-footer">Sarah Johnson, Educator</footer>
+                    </blockquote>
+                </div>
+                <div class="col-md-6">
+                    <blockquote class="blockquote text-center">
+                        <p>"The best part is the ability to track each learner’s progress in real-time. A game-changer!"</p>
+                        <footer class="blockquote-footer">Michael Brown, Course Creator</footer>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="text-center py-5">
+        <div class="container">
+            <h2>Ready to Start Creating?</h2>
+            <p>Join thousands of educators and institutions using our platform to deliver world-class e-learning content.</p>
+            <a href="#" class="btn btn-primary btn-lg">Sign Up Now</a>
+        </div>
+    </section>
+
+{% endblock body %}
