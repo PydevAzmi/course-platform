@@ -5,7 +5,7 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'project.settings')
 django.setup()
 
 from accounts.models import User, Professor, Student
-from courses.models import Course, Chapter, Exam, Question, Answer, Enrollment, Request
+from courses.models import Course, Chapter, Exam, Question, Answer, Enrollment, Request, FileContent, VideoContent
 import random
 from faker import Faker
 
@@ -37,7 +37,7 @@ def seed_users(n):
             profile_image=image,
             role="Professor",
         )
-    print(f"successfuilly added {n} Users")
+    print(f"successfully added {n} Users")
 
 
 def seed_courses(n):
@@ -54,59 +54,88 @@ def seed_courses(n):
             image=image,
             professor = random.choice(profs),
         )
-    print(f"successfuilly added {n} Courses")
+    print(f"successfully added {n} Courses")
 
 def seed_courses_chapters():
+    n = random.randint(7,12)
     for course in Course.objects.all():
-        for i in range(10):
-            Chapter.objects.create(
-                title= f"chapter - {i}",
-                course = course,
-            )
-    print(f"successfuilly added chapters in {i} Courses")
+        if course.chapters.count() == 0:
+            for i in range(n):
+                Chapter.objects.create(
+                    title= f"chapter - {i}",
+                    course = course,
+                )
+    print(f"successfully added chapters in all Courses")
 
 
 def seed_cahpter_questions():
+    difficulty = ["Simple", "Difficult"]
+    objective = ["Creativity", "Understanding", "Remideing"]
     for chapter in Chapter.objects.all():
-        for _ in range(3):
-            Question.objects.create(
-                chapter = chapter,
-                question = fake.text(max_nb_chars=50),
-                difficulty = random.choice(DIFFICULTY_CHOICES),
-                objective = random.choice(OBJECTIVE_CHOICES),
-            )
-    print(f"successfuilly added questions in all Chapters")
+        if chapter.questions.count() == 0:
+            for dif in difficulty:
+                for obj in objective + objective:
+                    Question.objects.create(
+                        chapter = chapter,
+                        question = fake.text(max_nb_chars=50),
+                        difficulty = dif,
+                        objective = obj,
+                    )
+    print(f"successfully added 12 questions in all Chapters")
 
+def distroy_questions():
+    for question in Question.objects.all():
+        question.delete()
+    print(f"successfully deleted all Questions")
 
 def seed_questions_answers():
     for question in Question.objects.all():
-        for _ in range(3):
-            Answer.objects.create(
-                question = question,
-                answer = fake.text(max_nb_chars=50),
-                is_correct = False,
-            )
-    print(f"successfuilly added answers in all Questions")
+        if question.answers.count() == 0:
+            for _ in range(3):
+                Answer.objects.create(
+                    question = question,
+                    answer = fake.text(max_nb_chars=50),
+                    is_correct = False,
+                )
+    print(f"successfully added answers in all Questions")
 
 
 def seed_correct_answers():
     for question in Question.objects.all():
-        choice = random.choice(Answer.objects.filter(question=question).all())
-        choice.is_correct = True
-        choice.save()
-    print(f"successfuilly added correct answers in all Questions")
+        if not Answer.objects.filter(question=question, is_correct=True).exists():
+            choice = random.choice(Answer.objects.filter(question=question).all())
+            choice.is_correct = True
+            choice.save()
+    print(f"successfully added correct answers in all Questions")
 
 
 def seed_enrollments():
     students = Student.objects.all()
     for student in students:
         course = random.choice(Course.objects.all())
-        Enrollment.objects.create(
-            student = student,
-            course = course,
-            )
-    print(f"successfuilly added enrollments in all Students")
+        if not Enrollment.objects.filter(student=student, course=course).exists():
+            Enrollment.objects.create(
+                student = student,
+                course = course,
+                )
+    print(f"successfully added enrollments in all Students")
 
+def seed_files_videos():
+    images = ['course (1).jpg', 'course (2).jpg',
+              'course (3).jpg','course (4).jpg',
+              'course (5).jpg','course (6).jpg',
+              'course (7).jpg', 'course (8).jpg',
+              'course (9).jpg', 'course (10).jpg']
+    for chapter in Chapter.objects.all():
+        FileContent.objects.create(
+            chapter = chapter,
+            file = f"../media/courses/{random.choice(images)}",
+        )
+        VideoContent.objects.create(
+            chapter = chapter,
+            url = fake.url()
+        )
+    print(f"successfully added content to all chapters")
 
 if __name__ == "__main__":
     #seed_users(50)
