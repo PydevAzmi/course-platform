@@ -2,9 +2,9 @@ import os
 import django
 import random
 
-MUTATION_RATE = 0.02
-GENERATIONS = 50
-CROSSOVER_RATE = 0.7
+MUTATION_RATE = 0.03
+GENERATIONS = 80
+CROSSOVER_RATE = 0.4
 
 def generate_genome(genome_length, course):
     genome = []
@@ -19,7 +19,7 @@ def generate_genome(genome_length, course):
 
 def init_population(population_size, genome_length, course):
     population = []
-    for _ in range(population_size):
+    while len(population) < population_size :
         genome = generate_genome(genome_length, course)
         population.append(genome)
     return population
@@ -46,17 +46,15 @@ def fitness(genome, x1, x2, x3, y1, y2, y3):
                 b3 += 1
 
     fitness_score = (
-        (x1 - a1) ** 2 + (y1 - b1) ** 4 +
-        (x2 - a2) ** 2 + (y2 - b2) ** 4 +
-        (x3 - a3) ** 2 + (y3 - b3) ** 4
+        (x1 - a1) ** 2 + (y1 - b1) ** 2 +
+        (x2 - a2) ** 2 + (y2 - b2) ** 2 +
+        (x3 - a3) ** 2 + (y3 - b3) ** 2
     )
     return fitness_score
 
 
 def selection(population, fitness_scores):
-    # Implementing Tournament Selection
-    tournament_size = 5
-    selected = random.sample(list(zip(population, fitness_scores)), tournament_size)
+    selected = random.sample(list(zip(population, fitness_scores)), 5)
     return min(selected, key=lambda x: x[1])[0]
 
 
@@ -69,18 +67,27 @@ def mutate(genome, course):
     if random.random() < MUTATION_RATE:
         random_chapter = random.choice(course.chapters.all())
         random_question = random.choice(list(random_chapter.questions.all()))
-        mutation_index = random.randint(0, len(genome) - 1)
-        genome[mutation_index] = random_question
+        if random_question not in genome:
+            mutation_index = random.randint(0, len(genome) - 1)
+            genome[mutation_index] = random_question
     return genome
 
 
-def generate_exam(course, question_per_chapter, x1, x2, x3, y1, y2, y3):
+def generate_exam(course:object, question_per_chapter:int, x1:int, x2:int, x3:int, y1:int, y2:int, y3:int):
+    """
+    Generate an exam based on the given parameters.
+    Parameters:
+    - course: The course for which the exam is being generated.
+    - question_per_chapter: The number of questions per chapter in the exam.
+    - x1, x2, x3: The number of simple questions for each objective.
+    - y1, y2, y3: The number of difficult questions for each objective.
+
+    Returns:
+    - A list of questions representing the generated exam.
+    """
+
     genome_length = question_per_chapter
     population_size = course.chapters.count() * genome_length
-
-    if population_size < (x1 + x2 + x3) + (y1 + y2 + y3):
-        return ValueError("Difficulty level size is not equal to the given genome length.")
-
     population = init_population(population_size, genome_length, course)
 
     for g in range(GENERATIONS):

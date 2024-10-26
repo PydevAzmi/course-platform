@@ -1,0 +1,42 @@
+{% extends 'auth_base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}
+ Course Instance
+{% endblock title %}
+
+{% block body %}
+
+    <!-- Hero Section for Course Details -->
+    <section class="course-hero py-5">
+        <div class="container">
+    
+            <div class="row align-items-center">
+                <!-- Course Image on the Left -->
+                <div class="col-md-4 text-center mb-3 mb-md-0">
+                    <a href="{{course.get_absolute_url}}">
+                    <img src="{{course.image.url}}" alt="Course Image" class="img-fluid rounded"></a>
+                </div>
+                <!-- Course Title and Description on the Right -->
+                <div class="col-md-8 text-black text-md-start text-center">
+                    <h1 class="display-4">Course Title: {{course.title}}</h1>
+                    <div class="mt-4">
+                        <span><strong>Professor:</strong> {{course.professor.user.first_name}} {{course.professor.user.last_name}}</span> |
+                        <span><strong>Date:</strong> {{course.date}}</span> |
+                        <span><strong>Total Chapters:</strong> {{course.get_number_of_chapters}}</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <!-- Chapters List Section -->
+
+
+    <section class="container py-5">
+        <h2 class="text-center mb-4">ُEdit Course Chapters</h2>
+        <div class="accordion" id="chapterAccordion">
+
+        </div>
+    </section>
+{% endblock body %}

@@ -1,0 +1,110 @@
+{% extends 'auth_base.html' %}
+{% load static %}
+
+{% block title %}
+ Exam Instance
+{% endblock title %}
+
+{% block body %}
+
+    <!-- Hero Section for Course Details -->
+    <section class="course-hero py-5">
+        <div class="container">
+            
+            {% if course.professor.user == user %}
+                             
+            <div class="position-absolute top-0 end-0">
+                <a href="{% url 'course_edit' course.pk %}" class="btn btn-outline-primary mb-4">Edit Course</a>
+            </div>
+            {% endif %}
+            <div class="row align-items-center">
+                <!-- Course Image on the Left -->
+                <div class="col-md-4 text-center mb-3 mb-md-0">
+                    <img src="{{course.image.url}}" alt="Course Image" class="img-fluid rounded">
+                </div>
+                <!-- Course Title and Description on the Right -->
+                <div class="col-md-8 text-black text-md-start text-center">
+                    <h1 class="display-4">Course Title: {{course.title}}</h1>
+                    <div class="mt-4">
+                        <span><strong>Professor:</strong> {{course.professor.user.first_name}} {{course.professor.user.last_name}}</span> |
+                        <span><strong>Date:</strong> {{course.date}}</span> |
+                        <span><strong>Total Chapters:</strong> {{course.get_number_of_chapters}}</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <!-- Chapters List Section -->
+
+
+    <section class="container py-5">
+        <h2 class="text-center mb-4">Course Chapters</h2>
+        <div class="accordion" id="chapterAccordion">
+            {% for chapter in course.chapters.all %}
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading{{forloop.counter}}">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{forloop.counter}}" aria-expanded="false" aria-controls="collapse{{forloop.counter}}">
+                        {{chapter.title}}
+                    </button>
+                </h2>
+                <div id="collapse{{forloop.counter}}" class="accordion-collapse collapse" aria-labelledby="heading{{forloop.counter}}" data-bs-parent="#chapterAccordion">
+                   
+                    <div class="accordion-body">
+                        <h5 >Chapter Contents:</h5>
+                        <ul>
+                            {% for file in chapter.files.all %}
+                                <li>
+                                    <a href="{{file.file.url}}">{{file}}</a>
+                                </li>
+                            {% endfor %}
+                                
+                            {% for video in chapter.videos.all %}
+                            <li>
+                                <a href="{{video.url}}">{{video}}</a>
+                            </li>
+                            {% endfor %}
+
+                        </ul>
+                        
+                        
+
+                        <!-- Questions and Answers for Chapter 1 -->
+                        <h5 class="mt-4">Questions & Answers:</h5>
+                        <div class="question-list">
+                            <!-- Question 1 -->
+                            <div class="mt-4">
+                                {% for question in chapter.questions.all  %}
+                                    <h5>{{forloop.counter}}- {{question.question}} ?</h5>
+                                    {% for ans in question.answers.all  %}
+                                        <ul class="list-unstyled">
+                                            <li><input type="radio" name="q1" id="q1a"> <label for="q1a">{{forloop.counter}}. {{ans}}</label></li>
+                                        </ul>
+                                    {% endfor %}
+
+                                    {% for ans in question.answers.all  %}
+                                        {% if ans.is_correct %}
+                                        <button class="btn btn-primary btn-sm mb-3" onclick="showAnswer('{{ans.pk}}{{forloop.counter}}')">View Correct Answer</button>
+                                        <p id="{{ans.pk}}{{forloop.counter}}" class="mt-2" style="display:none;">Correct Answer: <strong>{{forloop.counter}}. {{ans}}</strong></p>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    <script>
+        function showAnswer(answerId) {
+            var answerElement = document.getElementById(answerId);
+            if (answerElement.style.display === "none") {
+                answerElement.style.display = "block";
+            } else {
+                answerElement.style.display = "none";
+            }
+        }
+    </script>
+{% endblock body %}

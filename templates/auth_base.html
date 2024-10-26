@@ -24,15 +24,24 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
+              
+
+                
                 <li class="nav-item">
                     <a class="nav-link active" href="{% url 'home' %}">Home</a>
                 </li>
+                {% if user.is_authenticated and user.role == 'Professor' %}
                 <li class="nav-item">
-                  <a class="nav-link" href="#">Courses</a>
+                  <a class="nav-link active" href="{% url 'dashboard' %}">Dashboard</a>
+                </li>
+                {% endif %}
+
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'courses' %}">Courses</a>
                 </li>
                 
                 <li class="nav-item">
-                  <a class="nav-link" href="#">Exams</a>
+                  <a class="nav-link" href="{% url 'exams' %}">Exams</a>
                 </li>
 
                   
@@ -70,6 +79,16 @@
 
   <div class="container mt-5">
     <div class="row justify-content-center">
+      {% if messages %}
+        <div class="container mt-3">
+          {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                  {{ message }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+          {% endfor %}
+        </div>
+      {% endif %}
       {% block body %}
         <div class="col-md-6">
           {% block main %} 

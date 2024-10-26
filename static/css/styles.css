@@ -113,6 +113,40 @@ h2,h3,h4,h5,h6{
     border-color: #218838;
 }
 
+
+.course-hero {
+    display: inline-block;
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    padding: 100px 0;
+    position: relative;
+}
+.course-hero-overlay {
+    background-color: rgba(0, 0, 0, 0.6);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+.course-hero-content {
+    position: relative;
+    z-index: 2;
+}
+.course-hero h1 {
+    font-size: 3rem;
+    font-weight: bold;
+}
+.course-hero p {
+    font-size: 1.2rem;
+}
+.chapter-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
 /* Footer */
 footer {
     margin-top: 50px;
