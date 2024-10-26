@@ -2,7 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% block title %}
- Course Instance
+ Course Exams
 {% endblock title %}
 
 {% block body %}
@@ -47,12 +47,24 @@
                {% if not exams %}
                 <small class='text-center'> there are no exams yet</small>
                {% endif %}
-                
+               
                 {% for exam in exams %}
                 <div class="list-group-item">
-                    <h5 class="mb-1">{{exam.title}}</h5>
-                    <p class="mb-1">{{exam.questions.count}} questions</p>
-                    <small>Duration: {{exam.dead_time}}</small>
+                    <div class="row justify-content-between">
+                        <h5 class=" col-md-4 mt-2">{{exam.title}}</h5>
+                        <div class="col-md-1 mt-2">
+                        </div>
+                        <p class="col-md-4 mt-2">{{exam.questions.count}} questions</p>
+                        <div class="row col-md-3 justify-content-between">
+                            <a href="{% url 'exam_detail' exam.pk %}" class="col-md-6 btn btn-outline-primary mb-2">Take Exam</a>
+                            {% if exam.course.professor.user == user %}
+                                <form action="{% url 'delete_exam' exam.pk %}" class="col-md-6" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger">Delete</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
                 {% endfor %}
             </div>

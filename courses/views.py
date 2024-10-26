@@ -1,7 +1,7 @@
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.views import View
+from django.views import View, generic
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -16,6 +16,14 @@ def home(request):
     }
     return render(request, 'courses/home.html', context)
 
+@login_required
+def dashboard(request):
+    courses = Course.objects.filter(professor=request.user.professor_profile)
+    paginator = Paginator(courses,20) 
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'courses/course_edit_list.html', {"page_obj": page_obj})
+
 
 def courses(request):
     courses = Course.objects.all()
@@ -23,6 +31,23 @@ def courses(request):
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
     return render(request, 'courses/courses.html', {"page_obj": page_obj})
+
+
+@login_required
+def user_courses(request):
+    user = request.user
+    page_obj = None
+    if user.role == 'Student':
+        enrollments = user.student_profile.enrollments.all()
+        courses = Course.objects.filter(enrollments__in=enrollments)
+        paginator = Paginator(courses,50) 
+        page_number = request.GET.get("page")
+        page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj
+    }
+    return render(request, 'courses/courses.html', context)
 
 
 @login_required
@@ -37,6 +62,15 @@ def course_edit(request, pk):
     
     context = {
         'course': course
+    }
+    return render(request, 'courses/exam_detail.html', context)
+
+
+@login_required
+def exam_detail(request, pk):
+    exam = Exam.objects.get(id=pk)
+    context = {
+        'exam': exam
     }
     return render(request, 'courses/exam_detail.html', context)
 
@@ -103,7 +137,7 @@ class CourseUpdateView(LoginRequiredMixin, View):
         return render(request, 'course/course_update.html', context)
 
 
-class ExamListView(LoginRequiredMixin, View):
+class CoursExamListView(LoginRequiredMixin, View):
     def get(self, request, pk):
         course = get_object_or_404(Course, id=pk)
         exams = Exam.objects.filter(course=course).all()
@@ -111,7 +145,7 @@ class ExamListView(LoginRequiredMixin, View):
             'course': course,
             'exams': exams,
         }
-        return render(request, 'exam/exams.html', context)
+        return render(request, 'exam/course_exams.html', context)
 
 
 class ExamCreateView(LoginRequiredMixin, View):
@@ -174,40 +208,56 @@ class ExamCreateView(LoginRequiredMixin, View):
         return render(request, 'course/exam_create.html', context)
 
 
+class ExamView(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        exam = get_object_or_404(Exam, id=pk)
+        
+        form = forms.QuestionForm(questions =exam.questions.all()  )
+        context = {
+            'exam': exam,
+            'form': form,
+        }
+        return render(request, 'exam/exam_detail.html', context)
 
 
+    def post(self, request, pk):
+        exam = get_object_or_404(Exam, id=pk)
+        form = forms.QuestionForm(request.POST)
+        context = {
+            'exam': exam,
+            'form': form,
+        }
+        if request.method == 'POST':
+            if form.is_valid():
+                print("Valiiiiiiiiiiiiiiiiiiiiiiiiid")
+                # Handle Exam Attempts
+                messages.success(request, 'Exam Attempts successfully!')
+                return redirect('exams')
+        return render(request, 'exam/exam_detail.html', context)
 
 
+class ExamListView(LoginRequiredMixin, generic.ListView):
+    model = Exam
+    template_name = 'exam/exam_list.html'
+    context_object_name = 'exams'
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == 'Student':
+            enrollments = user.student_profile.enrollments.all()
+            enrolled_courses = Course.objects.filter(enrollments__in=enrollments)
+            exams = Exam.objects.filter(course__in=enrolled_courses)
+        else:
+            exams = Exam.objects.filter(course__in = Course.objects.filter(professor=user.professor_profile))
+        return exams
 
 
-
-
-
-
-@login_required
-def prof_courses(request):
-    courses = Course.objects.filter(professor=request.user.professor_profile)
-    paginator = Paginator(courses,20) 
-    page_number = request.GET.get("page")
-    page_obj = paginator.get_page(page_number)
-    return render(request, 'courses/course_edit_list.html', {"page_obj": page_obj})
-
-
-@login_required
-def exams(request):
-    context = {
-        'courses': Exam.objects.all()
-    }
-    return render(request, 'courses/exams.html', context)
-
-@login_required
-def exam_detail(request, pk):
-    exam = Exam.objects.get(id=pk)
-    context = {
-        'exam': exam
-    }
-    return render(request, 'courses/exam_detail.html', context)
-
-@login_required
-def create_exam(request):
-    pass
+class ExamDeleteView(LoginRequiredMixin, generic.DeleteView):
+    def post(self, request, pk):
+        if request.user.role == 'Student':
+            messages.warning(request, 'You are not allowed to delete exams!')
+            return redirect('exams')
+        exam = get_object_or_404(Exam, id=pk)
+        exam.delete()
+        messages.success(request, 'Exam deleted successfully!')
+        return redirect('exams')

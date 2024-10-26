@@ -36,10 +36,13 @@ class ChapterAdmin(admin.ModelAdmin):
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [AnswerInline]
 
+class AnswerAdmin(admin.ModelAdmin):
+    fields = [ 'answer', 'is_correct']
+
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Chapter, ChapterAdmin)
 admin.site.register(Question, QuestionAdmin)
-admin.site.register(Answer)
+admin.site.register(Answer, AnswerAdmin)
 admin.site.register(Enrollment)
 admin.site.register(Request)
 admin.site.register(VideoContent)

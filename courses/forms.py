@@ -33,10 +33,21 @@ class ExamForm(forms.ModelForm):
             'difficult_creativity_questions',
             ]
 
-class QuestionForm(forms.ModelForm):
-    class Meta:
-        model = Question
-        fields = ['question']
+
+class QuestionForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        questions = kwargs.pop('questions', None)
+        super().__init__(*args, **kwargs)
+
+        if questions:
+            for question in questions:
+                choices = [(answer.pk, answer.answer) for answer in question.answers.all()]
+                self.fields[f"{question.pk}"] = forms.ChoiceField(
+                    label=question.question,
+                    choices=choices,
+                    widget=forms.RadioSelect,
+                    required=True
+                )
 
 
 class AnswerForm(forms.ModelForm):

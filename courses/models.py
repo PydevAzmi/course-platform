@@ -43,6 +43,9 @@ class Course(models.Model):
     
     def get_absolute_url(self):
         return reverse("course_detail", kwargs={"pk": self.pk})
+    
+    class Meta:
+        ordering = ['-date']
 
 
 class ExamQuestion(models.Model):
@@ -142,7 +145,6 @@ class Answer(models.Model):
                 raise ValidationError(_('Only 3 answers are allowed for each question'))
 
 
-
 class Enrollment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student = models.ForeignKey('accounts.Student',verbose_name=_('Student'), on_delete=models.CASCADE, related_name='enrollments')
@@ -170,4 +172,24 @@ class Request(models.Model):
                 student = self.student,
                 course = self.course
             )
+        super().save(*args, **kwargs)
+
+
+class Attempt(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    student = models.ForeignKey('accounts.Student',verbose_name=_("Student"), on_delete=models.CASCADE, related_name='attempts')
+    exam = models.ForeignKey(Exam, verbose_name=_("Exam"), on_delete=models.CASCADE, related_name='attempts')
+    score = models.IntegerField(_("Score"), default=0)
+    attempt_date = models.DateTimeField(verbose_name=_("Attempt Date"), auto_now_add=True)
+
+    def get_absolute_url(self):
+        return reverse("attempt_detail", kwargs={"pk": self.pk})
+    
+    def __str__(self) -> str:
+        return f'{self.student} - {self.exam} - {self.score}'
+
+    def save(self, *args, **kwargs):
+        attemps = Attempt.objects.filter(Q(student=self.student) & Q(course=self.exam)).count() >= 3
+        if attemps and not Attempt.objects.filter(pk = self.pk).exists():
+            raise ValidationError(_('You have reached the maximum number of attempts'))
         super().save(*args, **kwargs)
